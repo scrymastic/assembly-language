@@ -1,12 +1,11 @@
-;bài này đang bị lỗi, không chạy được
-
+section .bss
+    input: resb 22                  ;Ex: input = '1234 45677'
+    
+section .data
 
 section .text
-
 global _start
-
 _start:
-
     mov edx, 22
     lea ecx, input
     mov ebx, 0
@@ -15,71 +14,87 @@ _start:
     
     lea ecx, input
     xor eax, eax
+    
+get_num1:                           ;take the digits from input string and convert them to two numbers
+    xor ebx, ebx
+    mov bl, [ecx]
+    cmp bl, 32
+    je end1
+    sub bl, 48
+    add eax, ebx
+    
     mov ebx, 10
-
-get_num1:
     mul ebx
-    add eax, [ecx]
-    sub eax, '0'
+    
     inc ecx
-    cmp byte [ecx], 32
-    jne get_num1
+    
+    jmp get_num1
+
+end1:
+    mov ebx, 10
+    div ebx
     push eax
     
     inc ecx
     xor eax, eax
-
-get_num2:
-    mul ebx
-    add eax, [ecx]
-    sub eax, '0'
-    inc ecx
-    cmp byte [ecx], 0
-    jne get_num2
     
-    pop ebx
+get_num2:
+    xor ebx, ebx
+    mov bl, [ecx]
+    cmp bl, 48
+    jl end2
+    cmp bl, 57
+    jg end2
+    sub bl, 48
     add eax, ebx
     
     mov ebx, 10
-    push 0
-
-
-push_digits:
-    mov ecx, eax
-    div ebx
     mul ebx
-
-    push ecx
-    sub ecx, eax
-    mov edx, ecx
-    pop ecx
-
-    add edx, '0'
-    push edx
     
-    div ebx
+    inc ecx
+    
+    jmp get_num2
 
+end2:
+    mov ebx, 10
+    div ebx
+    
+    pop ebx
+    add eax, ebx                    ;add two numbers to get the sum
+    
+    mov ecx, 0
+    
+push_digits:                        ;push each digit in the sum onto the stack
+    inc ecx
+    mov edx, 0
+    mov ebx, 10
+    idiv ebx
+    add edx, 48
+    push edx
     cmp eax, 0
     jne push_digits
     
-print:
-    mov ecx, esp
-    cmp byte [ecx], 0
-    je finish
     mov edx, 1
     mov ebx, 1
+    
+print:                              ;take each digit from the stack and print it out
+    dec ecx
+    mov eax, esp
+    push ecx
+    mov ecx, eax
+    
+    push eax
     mov eax, 4
     int 80h
-
+    
+    pop eax
+    pop ecx
     pop eax
     
-
-finish:
+    cmp ecx, 0
+    jne print
+    
+quit:
+    mov ebx, 0
     mov eax, 1
     int 80h
-
-section .data
-
-
-segment .bss
-    input: resb 22              ;ex: input = '12343 9865456'

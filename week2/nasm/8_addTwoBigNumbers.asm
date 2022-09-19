@@ -52,25 +52,12 @@ add_nums:
     xor ax, ax
 
 .add_loop:
-    ; ;print al
-    ; push eax
-    ; movzx eax, al
-    ; call iprint
-    ; call print_lf
-    ; pop eax
-    
-
 
     add al, byte [esi+edx]
     add al, byte [edi+ebx]
     sub al, '0'
     sub al, '0'
-    ; ;print al
-    ; push eax
-    ; movzx eax, al
-    ; call iprint
-    ; call print_lf
-    ; pop eax
+
     
     movzx ax, al
     push ecx

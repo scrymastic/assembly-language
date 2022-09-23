@@ -9,8 +9,8 @@ _start:
 cal_loop:
     call menu
     
-    lea eax, [cal]
-    call get_char
+    lea eax, cal
+    call get_until_linefeed
     
     mov dl, [cal]
     cmp dl, '1'
@@ -129,7 +129,7 @@ cal_loop:
     call sprint
 
     lea eax, conti
-    call get_char
+    call get_until_linefeed
     
     mov dh, [conti]
     
@@ -365,18 +365,19 @@ quit:
     int 80h
 
 section .data
-    str1 db "CALCULATOR: ", 0
+    str1 db "CALCULATOR: ", 10, 0
     str2 db "1(+) | 2(-) | 3(*) | 4(:)", 10, "Your choice: ", 0
     str3 db "Invalid! ", 0
     str4 db "first  num: ", 0
     str5 db "second num: ", 0
     str6 db "Result: ", 0
     str7 db " remaind: ", 0
-    str8 db "Continue[y/n]? ", 0
+    str8 db 10, "Continue[y/n]? ", 0
     str9 db "Bye ", 0
 
 segment .bss
 
+    lf resb 1
     cal resb 1
     conti resb 1
     num1 resb 11

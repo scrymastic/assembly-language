@@ -371,9 +371,9 @@ section .data
     str4 db "first  num: ", 0
     str5 db "second num: ", 0
     str6 db "Result: ", 0
-    str7 db " remaind: ", 0
+    str7 db " remain: ", 0
     str8 db 10, "Continue[y/n]? ", 0
-    str9 db "Bye ", 0
+    str9 db "Bye ", 10, 0
 
 segment .bss
 

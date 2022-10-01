@@ -28,8 +28,7 @@ print:
     mov eax, esp
 
     call print_char
-   
-   
+    
     pop eax
     cmp ecx, 0
    

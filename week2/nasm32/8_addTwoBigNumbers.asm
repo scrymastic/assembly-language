@@ -299,3 +299,4 @@ segment .bss
     num1 resb 22
     num2 resb 22
     num3 resb 22
+    

@@ -17,7 +17,6 @@ _start:
     call quit
     
     
-    
 
 ;------------------------------------------
 ; int slen(String message)

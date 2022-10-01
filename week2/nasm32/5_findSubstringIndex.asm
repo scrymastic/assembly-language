@@ -141,7 +141,8 @@ get_char:
     
     ret
     
-    
+  
+  
 ;------------------------------------------
 ; int slen(String message)
 ; String length calculation function

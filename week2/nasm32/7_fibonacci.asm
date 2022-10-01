@@ -65,7 +65,6 @@ _start:
     jmp .fibo_loop
     
     
-    
 done:
     call quit
 

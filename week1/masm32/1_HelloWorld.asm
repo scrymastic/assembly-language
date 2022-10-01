@@ -6,7 +6,7 @@ option casemap:none
 include \masm32\include\masm32rt.inc
 
 .data
-     msg db "Hello, World!", 0
+    msg db "Hello, World!", 0
 
 .code 
 start: 

@@ -1,6 +1,6 @@
 ;input: a sequence
 ;each number is in a single line
-;enter two times to get the result
+;press enter two times to get the result
 ;example:
 ;1
 ;2

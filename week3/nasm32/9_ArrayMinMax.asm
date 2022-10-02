@@ -1,4 +1,13 @@
 
+;input: a sequence in a line
+;each number is separated by a non-digit character
+;press enter to get the result
+;example:
+;1 2 3 4 5
+;min: 1
+;max: 5
+
+
 section .text
 
 global _start

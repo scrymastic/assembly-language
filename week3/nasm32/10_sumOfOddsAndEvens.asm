@@ -1,4 +1,10 @@
-
+;input: a sequence in a line
+;each number is separated by a non-digit character
+;press enter to get the result
+;example:
+;1 2 3 4 5
+;sum of odds: 9
+;sum of evens: 6
 
 section .text
 

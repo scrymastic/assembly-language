@@ -398,7 +398,6 @@ section .data
 
 segment .bss
 
-    lf resb 1
     cal resb 1
     conti resb 1
     num1 resb 11

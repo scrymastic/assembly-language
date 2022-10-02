@@ -220,47 +220,6 @@ atoi proc
 atoi endp
 
 
-;eax: num
-;ebx: des
-;out:
-;
-
-itoa proc
-    push eax
-    push ebx
-    push ecx
-    push edx
-    push esi
-    
-    mov esi, ebx
-
-    mov ecx, 0
-    mov ebx, 10
-
-    div_loop:
-        xor edx, edx
-        div ebx
-        add dl, 48
-        mov byte ptr [esi+ecx], dl
-        inc ecx
-
-        test eax, eax
-        jne div_loop
-    mov byte ptr [esi+ecx], 0
-    mov eax, esi
-    call reverse
-
-    pop esi
-    pop edx
-    pop ecx
-    pop ebx
-    pop eax
-
-    ret
-
-itoa endp
-
-
 
 ;eax: string
 ;
@@ -317,7 +276,6 @@ slen proc
         ret
 
 slen endp  
-
 
 
 

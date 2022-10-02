@@ -54,9 +54,17 @@ cal_loop:
     
     lea eax, num2
     call atoi
+    cmp ebx, eax
+    jl .less
     sub ebx, eax
-    
     jmp .result123
+    
+    .less:
+        sub eax, ebx
+        mov ebx, eax
+        jmp .result2neg
+        
+        
     
 .mult:
 
@@ -101,6 +109,17 @@ cal_loop:
     
 .result123:
     lea eax, str6
+    call sprint
+    
+    mov eax, ebx
+    call iprint
+    
+    jmp .continue
+    
+.result2neg:
+    lea eax, str6
+    call sprint
+    mov eax, str10
     call sprint
     
     mov eax, ebx
@@ -375,6 +394,7 @@ section .data
     str7 db " remain: ", 0
     str8 db 10, "Continue[y/n]? ", 0
     str9 db "Bye ", 10, 0
+    str10 db "-", 0
 
 segment .bss
 
@@ -383,5 +403,3 @@ segment .bss
     conti resb 1
     num1 resb 11
     num2 resb 11
-
-

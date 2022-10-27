@@ -1,7 +1,4 @@
 
-
-
-
 .386
 .model flat, stdcall
 option casemap: none
@@ -152,7 +149,7 @@ WinMain proc hInst: HINSTANCE, hPrevInst: HINSTANCE, CmdLine: LPSTR, CmdShow: DW
 	invoke CreateWindowEx, NULL,\
 			addr ClassName, addr AppName,\
 			WS_OVERLAPPEDWINDOW,\
-			CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,\
+			CW_USEDEFAULT, CW_USEDEFAULT, 450, 300,\
 			NULL, NULL, hInst, NULL
 			
 	mov hwnd, eax

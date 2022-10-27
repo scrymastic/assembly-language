@@ -88,7 +88,7 @@ WndProc proc hWnd: HWND, uMsg: UINT, wParam: WPARAM, lParam: LPARAM
 		mov hwndPrint, eax
 		
 		invoke SetFocus, hwndEdit
-		.elseif uMsg == WM_COMMAND
+	.elseif uMsg == WM_COMMAND
 		mov eax, wParam
 		.if lParam == 0
 			.if ax == IDM_HELLO
@@ -172,8 +172,6 @@ WinMain proc hInst: HINSTANCE, hPrevInst: HINSTANCE, CmdLine: LPSTR, CmdShow: DW
 	ret
 	
 WinMain endp
-
-
 
 start:
 	invoke GetModuleHandle, NULL

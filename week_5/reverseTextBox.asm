@@ -1,5 +1,7 @@
 
 
+
+
 .386
 .model flat, stdcall
 option casemap: none
@@ -47,8 +49,7 @@ Reverse proc
     dec edi
     @loop_length:
         mov bh, byte ptr [edi]           
-        mov bl, byte ptr [esi]
-        mov byte ptr [esi], bh          
+		mov byte ptr [esi], bh          
         inc esi                
         dec edi
         dec eax

@@ -1,4 +1,7 @@
 
+
+
+
 .386
 .model flat, stdcall
 option casemap: none
@@ -43,47 +46,47 @@ Reverse proc
 	lea edi, [buffer]
 	lea esi, [rvString]
 	add edi, eax
-    dec edi
-    @loop_length:
-        mov bh, byte ptr [edi]           
+    	dec edi
+    	@loop_length:
+		mov bh, byte ptr [edi]           
 		mov byte ptr [esi], bh          
-        inc esi                
-        dec edi
-        dec eax
-        cmp eax, 0h
-        jge @loop_length               
-    mov byte ptr [esi], 0h
-    ret
+		inc esi                
+		dec edi
+		dec eax
+		cmp eax, 0h
+		jge @loop_length               
+	mov byte ptr [esi], 0h
+	ret
 Reverse endp
 		
 
 WndProc proc hWnd: HWND, uMsg: UINT, wParam: WPARAM, lParam: LPARAM
 	.if uMsg == WM_CREATE
 		mov esi, rv(CreateMenu)
-        mov edi, rv(CreateMenu)
+		mov edi, rv(CreateMenu)
 
 		invoke AppendMenu, esi, MF_POPUP, edi, chr$("&Menu")
-		
+
 		invoke AppendMenu, edi, MF_STRING, IDM_HELLO, chr$("&Hello")
 		invoke AppendMenu, edi, MF_STRING, IDM_CLEAR, chr$("&Clear")
-        invoke AppendMenu, edi, MF_STRING, IDM_ABOUT, chr$("&About")
+		invoke AppendMenu, edi, MF_STRING, IDM_ABOUT, chr$("&About")
 		invoke AppendMenu, edi, MF_STRING, IDM_EXIT, chr$("&Exit")
-		
-        invoke SetMenu, hWnd, esi
-		
+
+		invoke SetMenu, hWnd, esi
+
 		invoke CreateWindowEx, WS_EX_CLIENTEDGE,\
-				chr$("edit"), NULL,\
-				WS_CHILD or WS_VISIBLE or WS_BORDER or ES_AUTOVSCROLL or ES_MULTILINE,\
-				9, 8, 400, 40,\
-				hWnd, EditID, hInstance, NULL
+			chr$("edit"), NULL,\
+			WS_CHILD or WS_VISIBLE or WS_BORDER or ES_AUTOVSCROLL or ES_MULTILINE,\
+			9, 8, 400, 40,\
+			hWnd, EditID, hInstance, NULL
 		mov hwndEdit, eax
 		invoke CreateWindowEx, WS_EX_CLIENTEDGE,\
-				chr$("edit"), NULL,\
-				WS_CHILD or WS_VISIBLE or WS_BORDER or ES_AUTOVSCROLL or ES_READONLY or ES_NOHIDESEL or ES_MULTILINE,\
-				9, 100, 400, 40,\
-				hWnd, PrintID, hInstance, NULL
+			chr$("edit"), NULL,\
+			WS_CHILD or WS_VISIBLE or WS_BORDER or ES_AUTOVSCROLL or ES_READONLY or ES_NOHIDESEL or ES_MULTILINE,\
+			9, 100, 400, 40,\
+		hWnd, PrintID, hInstance, NULL
 		mov hwndPrint, eax
-		
+
 		invoke SetFocus, hwndEdit
 	.elseif uMsg == WM_COMMAND
 		mov eax, wParam
@@ -147,10 +150,10 @@ WinMain proc hInst: HINSTANCE, hPrevInst: HINSTANCE, CmdLine: LPSTR, CmdShow: DW
 	
 	invoke RegisterClassEx, addr wc
 	invoke CreateWindowEx, NULL,\
-			addr ClassName, addr AppName,\
-			WS_OVERLAPPEDWINDOW,\
-			CW_USEDEFAULT, CW_USEDEFAULT, 450, 300,\
-			NULL, NULL, hInst, NULL
+		addr ClassName, addr AppName,\
+		WS_OVERLAPPEDWINDOW,\
+		CW_USEDEFAULT, CW_USEDEFAULT, 450, 300,\
+		NULL, NULL, hInst, NULL
 			
 	mov hwnd, eax
 	

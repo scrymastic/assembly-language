@@ -1,7 +1,7 @@
 ; Read
 ; Compile with: nasm -f elf read.asm
 ; Link with (64 bit systems require elf_i386 option): ld -m elf_i386 read.o -o read
-; Run with: ./read
+; Run with: ./read filename
 
 
 SECTION .data
@@ -34,12 +34,12 @@ SECTION .data
 	    aros db "AROS", 10, 0
 	    feos db "FenixOs", 10, 0
 	    nuxi db "Nuxi CloudABI", 10, 0
-	    stra db 'Stratus Technologies OpenVOS', 10, 0
+	    stra db "Stratus Technologies OpenVOS", 10, 0
 	abive db "  ABI Version:                       ", 0
 	type  db "  Type:                              ", 0
 	    none db "NONE (None)", 10, 0
 	    relo db "REL (Relocatable file)", 10, 0
-	    exec db "EXE (Executable file)", 10, 0
+	    exec db "EXEC (Executable file)", 10, 0
 	    shar db "DYN (Shared object file)", 10, 0
 	    core db "CORE (Core file)", 10, 0
 	    loos db "LOOS (Os specific)", 10, 0
@@ -129,13 +129,18 @@ SECTION .data
 	
 	unknown db "<unknown>", 10, 0
     
-    nonelf db "readelf: Error: Not an ELF file - it has the wrong magic bytes at the start", 10, 0
+    nonelf db "Error: Not an ELF file - it has the wrong magic bytes at the start", 10, 0
+    
+    hexpre db "0x", 0
+    
+    bytofl db " (bytes into file)", 10, 0
+    strbys db " (bytes)", 10, 0
 
     uninit db 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
     
 
 SECTION .bss
-filename resb 255          ; variable to store file contents
+filename resb 255
 byteContents resb 10
 fildes resd 1
 litbig resb 1
@@ -144,21 +149,47 @@ temp resw 1
 
 
 SECTION .text
-global  _start
 
 ;--------------------------------------------
 ; eax: number of bytes to read
 get_next_byte:
     
-    mov     edx, eax              ; number of bytes to read - one for each letter of the file contents
-    mov     ecx, byteContents    ; move the memory address of our file contents variable into ecx
-    mov     ebx, dword [fildes] ; move the opened file descriptor into EBX
-    mov     eax, 3              ; invoke SYS_READ (kernel opcode 3)
-    int     80h                 ; call the kernel
-    
+    mov     edx, eax 
+    mov     ecx, byteContents
+    mov     ebx, dword [fildes]
+    mov     eax, 3
+    int     0x80
     ret
     
+;--------------------------------------------
+; eax: string
+; ebx: len
+reverse_len:
+    push edx
+    push ecx
+    push ebx
+    push eax
 
+    add ebx, eax
+    sub ebx, 1
+.swap_loop:
+
+    mov cl, [eax]
+    mov dl, [ebx]
+    mov [eax], dl
+    mov [ebx], cl
+
+    inc eax
+    dec ebx
+    cmp eax, ebx
+    jl .swap_loop
+    
+    pop eax
+    pop ebx
+    pop ecx
+    pop edx
+   
+    ret
 
 ;-------------------------------------------
 ;eax: des
@@ -191,154 +222,79 @@ copy:
     
     ret
 
-
-
-;-------------------------------------
-; eax: string
-; ebx: len
-reverse_len:
-    push edx
-    push ecx
-    push ebx
-    push eax
-   
-    add ebx, eax
-    sub ebx, 1
-
-.swap_loop:
-
-    mov cl, [eax]
-    mov dl, [ebx]
-    mov [eax], dl
-    mov [ebx], cl
-
-    inc eax
-    dec ebx
-    cmp eax, ebx
-    jl .swap_loop
-    
-    pop eax
-    pop ebx
-    pop ecx
-    pop edx
-   
-    ret
-    
-    
-    
-;------------------------------------------
-; int atoi(Integer number)
-; Ascii to integer function (atoi)
-atoi:
-    push    ebx             ; preserve ebx on the stack to be restored after function runs
-    push    ecx             ; preserve ecx on the stack to be restored after function runs
-    push    edx             ; preserve edx on the stack to be restored after function runs
-    push    esi             ; preserve esi on the stack to be restored after function runs
-    mov     esi, eax        ; move pointer in eax into esi (our number to convert)
-    mov     eax, 0          ; initialise eax with decimal value 0
-    mov     ecx, 0          ; initialise ecx with decimal value 0
-
-.multiplyLoop:
-    xor     ebx, ebx        ; resets both lower and uppper bytes of ebx to be 0
-    mov     bl, [esi+ecx]   ; move a single byte into ebx register's lower half
-    cmp     bl, 48          ; compare ebx register's lower half value against ascii value 48 (char value 0)
-    jl      .finished       ; jump if less than to label finished
-    cmp     bl, 57          ; compare ebx register's lower half value against ascii value 57 (char value 9)
-    jg      .finished       ; jump if greater than to label finished
-
-    sub     bl, 48          ; convert ebx register's lower half to decimal representation of ascii value
-    add     eax, ebx        ; add ebx to our interger value in eax
-    mov     ebx, 10         ; move decimal value 10 into ebx
-    mul     ebx             ; multiply eax by ebx to get place value
-    inc     ecx             ; increment ecx (our counter register)
-    jmp     .multiplyLoop   ; continue multiply loop
-
-.finished:
-    cmp     ecx, 0          ; compare ecx register's value against decimal 0 (our counter register)
-    je      .restore        ; jump if equal to 0 (no integer arguments were passed to atoi)
-    mov     ebx, 10         ; move decimal value 10 into ebx
-    div     ebx             ; divide eax by value in ebx (in this case 10)
-
-.restore:
-    pop     esi             ; restore esi from the value we pushed onto the stack at the start
-    pop     edx             ; restore edx from the value we pushed onto the stack at the start
-    pop     ecx             ; restore ecx from the value we pushed onto the stack at the start
-    pop     ebx             ; restore ebx from the value we pushed onto the stack at the start
-    ret
-
-
 ;------------------------------------------
 ; void iprint(Integer number)
 ; Integer printing function (itoa)
 iprint:
-    push    eax             ; preserve eax on the stack to be restored after function runs
-    push    ecx             ; preserve ecx on the stack to be restored after function runs
-    push    edx             ; preserve edx on the stack to be restored after function runs
-    push    esi             ; preserve esi on the stack to be restored after function runs
-    mov     ecx, 0          ; counter of how many bytes we need to print in the end
+    push    eax
+    push    ecx
+    push    edx
+    push    esi
+    mov     ecx, 0
 
 .divideLoop:
-    inc     ecx             ; count each byte to print - number of characters
-    mov     edx, 0          ; empty edx
-    mov     esi, 10         ; mov 10 into esi
-    idiv    esi             ; divide eax by esi
-    add     edx, 48         ; convert edx to it's ascii representation - edx holds the remainder after a divide instruction
-    push    edx             ; push edx (string representation of an intger) onto the stack
-    cmp     eax, 0          ; can the integer be divided anymore?
-    jnz     .divideLoop     ; jump if not zero to the label divideLoop
+    inc     ecx
+    mov     edx, 0
+    mov     esi, 10
+    idiv    esi
+    add     edx, 48
+    push    edx
+    cmp     eax, 0
+    jnz     .divideLoop
 
 .printLoop:
-    dec     ecx             ; count down each byte that we put on the stack
-    mov     eax, esp        ; mov the stack pointer into eax for printing
-    call    sprint          ; call our string print function
-    pop     eax             ; remove last character from the stack to move esp forward
-    cmp     ecx, 0          ; have we printed all bytes we pushed onto the stack?
-    jnz     .printLoop      ; jump is not zero to the label printLoop
+    dec     ecx
+    mov     eax, esp
+    call    sprint
+    pop     eax
+    cmp     ecx, 0
+    jnz     .printLoop
 
-    pop     esi             ; restore esi from the value we pushed onto the stack at the start
-    pop     edx             ; restore edx from the value we pushed onto the stack at the start
-    pop     ecx             ; restore ecx from the value we pushed onto the stack at the start
-    pop     eax             ; restore eax from the value we pushed onto the stack at the start
+    pop     esi
+    pop     edx
+    pop     ecx
+    pop     eax
     ret
+
+
 
 ;------------------------------------------
 ; eax: number to be printed
 ; integer (hex) printing function (itoa)
 iprintH:
-    push    eax             ; preserve eax on the stack to be restored after function runs
-    push    ecx             ; preserve ecx on the stack to be restored after function runs
-    push    edx             ; preserve edx on the stack to be restored after function runs
-    push    esi             ; preserve esi on the stack to be restored after function runs
-    mov     ecx, 0          ; counter of how many bytes we need to print in the end
-
+    push    eax
+    push    ecx
+    push    edx
+    push    esi
+    mov     ecx, 0
 .divideLoop:
-    inc     ecx             ; count each byte to print - number of characters
-    mov     edx, 0          ; empty edx
-    mov     esi, 16         ; mov 16 into esi
-    idiv    esi             ; divide eax by esi
-    add     edx, 48         ; convert edx to it's ascii representation - edx holds the remainder after a divide instruction
+    inc     ecx
+    mov     edx, 0
+    mov     esi, 16
+    idiv    esi
+    add     edx, 48
     cmp     edx, 57
     jg      .hex_digit
     jmp     .push_digit
 .hex_digit:
-    add     edx, 7
+    add     edx, 39
 .push_digit:
-    push    edx             ; push edx (string representation of an intger) onto the stack
-    cmp     eax, 0          ; can the integer be divided anymore?
-    jnz     .divideLoop     ; jump if not zero to the label divideLoop
+    push    edx
+    cmp     eax, 0
+    jnz     .divideLoop
 
 .printLoop:
-    dec     ecx             ; count down each byte that we put on the stack
-    mov     eax, esp        ; mov the stack pointer into eax for printing
-    call    sprint          ; call our string print function
-    pop     eax             ; remove last character from the stack to move esp forward
-    cmp     ecx, 0          ; have we printed all bytes we pushed onto the stack?
-    jnz     .printLoop      ; jump is not zero to the label printLoop
+    dec     ecx
+    mov     eax, esp
+    call    sprint
+    pop     eax
+    cmp     ecx, 0
+    jnz     .printLoop
 
-    pop     esi             ; restore esi from the value we pushed onto the stack at the start
-    pop     edx             ; restore edx from the value we pushed onto the stack at the start
-    pop     ecx             ; restore ecx from the value we pushed onto the stack at the start
-    pop     eax             ; restore eax from the value we pushed onto the stack at the start
+    pop     esi
+    pop     edx
+    pop     ecx
+    pop     eax
     ret
 
 
@@ -346,6 +302,9 @@ iprintH:
 
 ;-----------------------------
 ; eax: byte to be printed
+; 0 <= eax <= 255
+; 0 => 00
+; 10 => 0A
 iprint_byteH:
 	cmp eax, 15
 	jg .print
@@ -366,26 +325,26 @@ iprint_byteH:
 ;------------------------------------------
 ;print linefeed
 print_lf:
-    push    eax             ; push eax onto the stack to preserve it while we use the eax register in this function
-    mov     eax, 10			; move 10 into eax - 10 is the ascii character for a linefeed
-    push    eax             ; push the linefeed onto the stack so we can get the address
-    mov     eax, esp        ; move the address of the current stack pointer into eax for sprint
-    call    sprint          ; call our sprint function
-    pop     eax             ; remove our linefeed character from the stack
-    pop     eax             ; restore the original value of eax before our function was called
+    push    eax
+    mov     eax, 10
+    push    eax
+    mov     eax, esp
+    call    sprint
+    pop     eax
+    pop     eax
     ret
 
 
 ;------------------------------------------
 ;print space
 print_sp:
-    push    eax             ; push eax onto the stack to preserve it while we use the eax register in this function
-    mov     eax, 32			; move 32 into eax - 32 is the ascii character for a space
-    push    eax             ; push the linefeed onto the stack so we can get the address
-    mov     eax, esp        ; move the address of the current stack pointer into eax for sprint
-    call    sprint          ; call our sprint function
-    pop     eax             ; remove our linefeed character from the stack
-    pop     eax             ; restore the original value of eax before our function was called
+    push    eax
+    mov     eax, 32
+    push    eax
+    mov     eax, esp
+    call    sprint
+    pop     eax
+    pop     eax
     ret
 
 
@@ -424,20 +383,19 @@ sprint:
     mov     ecx, eax
     mov     ebx, 1
     mov     eax, 4
-    int     80h
+    int     0x80
 
     pop     ebx
     pop     ecx
     pop     edx
     ret
 
-
     
 ;---------------------------------
-; print a string in hex
+; print a string in hex, each byte is separated by a space
 ; eax: source
 ; ebx: len
-sprintH:
+sprintH_sp:
     push    edx
     push    ecx
     push    ebx
@@ -467,6 +425,55 @@ sprintH:
     ret
 
 
+;---------------------------------
+; print a string in hex
+; eax: source
+; ebx: len
+sprintH:
+    push    edx
+    push    ecx
+    push    ebx
+    push    eax
+    
+	mov esi, eax
+	add esi, ebx
+	mov ecx, eax
+	mov dl, 0
+	
+.start_print:
+    cmp ecx, esi
+    je .print0
+    
+    cmp byte [ecx], 0
+    jne .first_digit
+    inc ecx
+    jmp .start_print
+    
+.first_digit:
+    movzx eax, byte [ecx]
+    call iprintH
+    inc ecx
+.printLoop:
+	cmp ecx, esi
+	je .finish
+
+	movzx eax, byte [ecx]
+	call iprint_byteH
+	
+	inc ecx
+	jmp .printLoop
+
+.print0:
+    mov eax, 0
+    call iprint
+
+.finish:
+	pop 	eax
+    pop     ebx
+    pop     ecx
+    pop     edx
+    ret
+    
 
 
 ;------------------------------------------
@@ -475,10 +482,12 @@ sprintH:
 quit:
     mov     ebx, 0
     mov     eax, 1
-    int     80h
+    int     0x80
     ret
 
 
+
+global _start
 
 _start:
 
@@ -496,7 +505,7 @@ _start:
     mov     ecx, 0              ; Open file from lesson 24
     mov     ebx, filename
     mov     eax, 5
-    int     80h
+    int     0x80
     
     mov dword [fildes], eax
 
@@ -508,19 +517,19 @@ _start:
     call get_next_byte
     
     mov bl, byte [byteContents]
-    cmp bl, 7Fh
+    cmp bl, 0x7F
     jne .nonelf
     
     mov bl, byte [byteContents+1]
-    cmp bl, 45h
+    cmp bl, 0x45
     jne .nonelf
     
     mov bl, byte [byteContents+2]
-    cmp bl, 4ch
+    cmp bl, 0x4C
     jne .nonelf
     
     mov bl, byte [byteContents+3]
-    cmp bl, 46h
+    cmp bl, 0x46
     jne .nonelf
     
     mov eax, elfhe
@@ -532,7 +541,7 @@ _start:
     
     mov eax, byteContents
     mov ebx, 4
-    call sprintH
+    call sprintH_sp
 
 	call print_lf
     
@@ -793,43 +802,34 @@ _start:
     mov eax, 2
     call get_next_byte
     
+    xor cx, cx
+    
     mov bl, 1
     cmp byte [litbig], bl
     je .little_type
     
-    xor eax, eax
-    mov al, byte [byteContents]
-    mov bl, 16
-    mul bl
-    movzx bx, byte [byteContents+1]
-    add ax, bx
-    
-    mov cx, ax
+    mov ch, byte [byteContents]
+    mov cl, byte [byteContents+1]
     
     jmp .compare_type
 .little_type:
-    xor eax, eax
-    mov al, byte [byteContents+1]
-    mov bl, 16
-    mul bl
-    movzx bx, byte [byteContents]
-    add ax, bx
+    mov ch, byte [byteContents+1]
+    mov cl, byte [byteContents]
     
-    mov cx, ax
 .compare_type:
-    cmp cx, 0h
+    cmp cx, 0
     je .none
     
-    cmp cx, 1h
+    cmp cx, 1
     je .relo
     
-    cmp cx, 2h
+    cmp cx, 2
     je .exec
     
-    cmp cx, 3h
+    cmp cx, 3
     je .shar
     
-    cmp cx, 4h
+    cmp cx, 4
     je .core
     
     cmp cx, 0xfe00
@@ -893,7 +893,7 @@ _start:
     call sprint
 	jmp .finish_type
 
-    
+
 
 .finish_type:
 
@@ -905,29 +905,20 @@ _start:
     mov eax, 2
     call get_next_byte
     
+    xor cx, cx
+    
     mov bl, 1
     cmp byte [litbig], bl
     je .little_machi
     
-    xor eax, eax
-    mov al, byte [byteContents]
-    mov bl, 16
-    mul bl
-    movzx bx, byte [byteContents+1]
-    add ax, bx
-    
-    mov cx, ax
+    mov ch, byte [byteContents]
+    mov cl, byte [byteContents+1]
     
     jmp .compare_machi
 .little_machi:
-    xor eax, eax
-    mov al, byte [byteContents+1]
-    mov bl, 16
-    mul bl
-    movzx bx, byte [byteContents]
-    add ax, bx
+    mov ch, byte [byteContents+1]
+    mov cl, byte [byteContents]
     
-    mov cx, ax
 .compare_machi:
     cmp cx, 0
     je .nosp
@@ -1010,7 +1001,7 @@ _start:
     cmp cx, 0x2D
     je .argo
     
-    cmp cx,0x2E
+    cmp cx, 0x2E
     je .rene
     
     cmp cx, 0x2F
@@ -1041,7 +1032,7 @@ _start:
     je .siep
     
     cmp cx, 0x38
-    jmp .sony
+    je .sony
     
     cmp cx, 0x39
     je .dens
@@ -1207,7 +1198,6 @@ _start:
     mov eax, spus
     call sprint
     jmp .finish_machi
-    
 .necv:
     mov eax, necv
     call sprint
@@ -1289,6 +1279,8 @@ _start:
     call sprint
     jmp .finish_machi
 .sony:
+    movzx eax, cx
+    call iprintH
     mov eax, sony
     call sprint
     jmp .finish_machi
@@ -1412,13 +1404,461 @@ _start:
     mov eax, wdc6
     call sprint
     jmp .finish_machi
-
-
     
     
 .finish_machi:
+
+;---------------------------------------
+; machine version:
+    mov eax, maver
+    call sprint
     
+    mov eax, 4
+    call get_next_byte
     
+    mov eax, hexpre
+    call sprint
+    
+    mov bl, 1
+    cmp byte [litbig], bl
+    je .little_maver
+    
+    mov eax, byteContents
+    mov ebx, 4
+    call sprintH
+    call print_lf
+    
+    jmp .finish_maver
+
+.little_maver:
+    mov eax, byteContents
+    mov ebx, 4
+    call reverse_len
+    
+    call sprintH
+    call print_lf
+    
+.finish_maver:
+
+;-------------------------------------
+; entry:
+    mov eax, entry
+    call sprint
+    
+    mov eax, hexpre
+    call sprint
+    
+    mov bl, 1
+    cmp byte [numbit], 1
+    je .x86_entry
+    
+    mov eax, 8
+    call get_next_byte
+    
+    mov bl, 1
+    cmp byte [litbig], bl
+    je .x64little_entry
+    
+    jmp .x64print_entry
+    
+.x64little_entry:
+    mov eax, byteContents
+    mov ebx, 8
+    call reverse_len
+    
+.x64print_entry:
+    mov eax, byteContents
+    mov ebx, 8
+    call sprintH
+    jmp .finish_entry
+    
+.x86_entry:
+    mov eax, 4
+    call get_next_byte
+    
+    mov bl, 1
+    cmp byte [litbig], bl
+    je .x86little_entry
+    jmp .x86print_entry
+    
+.x86little_entry:
+    mov eax, byteContents
+    mov ebx, 4
+    call reverse_len
+    
+.x86print_entry:
+    mov eax, byteContents
+    mov ebx, 4
+    call sprintH
+    
+.finish_entry:
+    call print_lf
+    
+;----------------------------------------
+; start of program header:
+    mov eax, stoph
+    call sprint
+    
+    mov bl, 1
+    cmp byte [numbit], 1
+    je .x86_stoph
+    
+    mov eax, 8
+    call get_next_byte
+    
+    mov bl, 1
+    cmp byte [litbig], bl
+    je .x64little_stoph
+    
+    jmp .x64print_stoph
+    
+.x64little_stoph:
+    mov eax, byteContents
+    mov ebx, 8
+    call reverse_len
+    
+    mov eax, byteContents+4
+    mov ebx, 4
+    call reverse_len
+    
+.x64print_stoph:
+    cmp byte [byteContents], 0
+    jne .overflow_stoph
+    cmp byte [byteContents+1], 0
+    jne .overflow_stoph
+    cmp byte [byteContents+2], 0
+    jne .overflow_stoph
+    cmp byte [byteContents+3], 0
+    jne .overflow_stoph
+    
+    mov eax, dword [byteContents+4]
+    call iprint
+    jmp .finish_stoph
+    
+.overflow_stoph:
+    mov eax, hexpre
+    call sprint
+    
+    mov eax, byteContents
+    mov ebx, 8
+    call sprintH
+    jmp .finish_stoph
+    
+.x86_stoph:
+    mov eax, 4
+    call get_next_byte
+    
+    mov bl, 1
+    cmp byte [litbig], bl
+    je .x86little_stoph
+    jmp .x86print_stoph
+    
+.x86little_stoph:
+
+    
+.x86print_stoph:
+    mov eax, dword[byteContents]
+    call iprint
+    
+.finish_stoph:
+    mov eax, bytofl
+    call sprint
+
+
+;-------------------------------
+; start of section header:
+    mov eax, stosh
+    call sprint
+    
+    mov bl, 1
+    cmp byte [numbit], 1
+    je .x86_stosh
+    
+    mov eax, 8
+    call get_next_byte
+    
+    mov bl, 1
+    cmp byte [litbig], bl
+    je .x64little_stosh
+    
+    jmp .x64print_stosh
+    
+.x64little_stosh:
+    mov eax, byteContents
+    mov ebx, 8
+    call reverse_len
+    
+    mov eax, byteContents+4
+    mov ebx, 4
+    call reverse_len
+    
+.x64print_stosh:
+    cmp byte [byteContents], 0
+    jne .overflow_stosh
+    cmp byte [byteContents+1], 0
+    jne .overflow_stosh
+    cmp byte [byteContents+2], 0
+    jne .overflow_stosh
+    cmp byte [byteContents+3], 0
+    jne .overflow_stosh
+    
+    mov eax, dword [byteContents+4]
+    call iprint
+    jmp .finish_stosh
+    
+.overflow_stosh:
+    mov eax, hexpre
+    call sprint
+    
+    mov eax, byteContents
+    mov ebx, 8
+    call sprintH
+    jmp .finish_stosh
+    
+.x86_stosh:
+    mov eax, 4
+    call get_next_byte
+    
+    mov bl, 1
+    cmp byte [litbig], bl
+    je .x86little_stosh
+    jmp .x86print_stosh
+    
+.x86little_stosh:
+
+    
+.x86print_stosh:
+    mov eax, dword[byteContents]
+    call iprint
+    
+.finish_stosh:
+    mov eax, bytofl
+    call sprint
+
+
+
+;----------------------------------
+; flags:
+    mov eax, flags
+    call sprint
+    
+    mov eax, 4
+    call get_next_byte
+    
+    mov eax, hexpre
+    call sprint
+    
+    mov bl, 1
+    cmp byte [litbig], bl
+    je .little_flags
+    
+    mov eax, byteContents
+    mov ebx, 4
+    call sprintH
+    call print_lf
+    
+    jmp .finish_flags
+
+.little_flags:
+    mov eax, byteContents
+    mov ebx, 4
+    call reverse_len
+    
+    call sprintH
+    call print_lf
+    
+.finish_flags:
+
+;------------------------------
+; size of this header:
+    mov eax, sioth
+    call sprint
+    
+    mov eax, 2
+    call get_next_byte
+    
+        
+    xor cx, cx
+    
+    mov bl, 1
+    cmp byte [litbig], bl
+    je .little_sioth
+    
+    mov ch, byte [byteContents]
+    mov cl, byte [byteContents+1]
+    
+    jmp .print_sioth
+.little_sioth:
+    mov ch, byte [byteContents+1]
+    mov cl, byte [byteContents]
+
+.print_sioth:
+    movzx eax, cx
+    call iprint
+    
+    mov eax, strbys
+    call sprint
+    
+.finish_sioth:
+
+;---------------------------------------------
+; size of program header:
+    mov eax, sioph
+    call sprint
+    
+    mov eax, 2
+    call get_next_byte
+    
+        
+    xor cx, cx
+    
+    mov bl, 1
+    cmp byte [litbig], bl
+    je .little_sioph
+    
+    mov ch, byte [byteContents]
+    mov cl, byte [byteContents+1]
+    
+    jmp .print_sioph
+.little_sioph:
+    mov ch, byte [byteContents+1]
+    mov cl, byte [byteContents]
+
+.print_sioph:
+    movzx eax, cx
+    call iprint
+    
+    mov eax, strbys
+    call sprint
+    
+.finish_sioph:
+    
+;---------------------------------------------
+; numbers of program header:
+    mov eax, nuoph
+    call sprint
+    
+    mov eax, 2
+    call get_next_byte
+    
+        
+    xor cx, cx
+    
+    mov bl, 1
+    cmp byte [litbig], bl
+    je .little_nuoph
+    
+    mov ch, byte [byteContents]
+    mov cl, byte [byteContents+1]
+    
+    jmp .print_nuoph
+.little_nuoph:
+    mov ch, byte [byteContents+1]
+    mov cl, byte [byteContents]
+
+.print_nuoph:
+    movzx eax, cx
+    call iprint
+    
+    call print_lf
+    
+.finish_nuoph:
+
+;---------------------------------------------
+; size of section header:
+    mov eax, siosh
+    call sprint
+    
+    mov eax, 2
+    call get_next_byte
+    
+        
+    xor cx, cx
+    
+    mov bl, 1
+    cmp byte [litbig], bl
+    je .little_siosh
+    
+    mov ch, byte [byteContents]
+    mov cl, byte [byteContents+1]
+    
+    jmp .print_siosh
+.little_siosh:
+    mov ch, byte [byteContents+1]
+    mov cl, byte [byteContents]
+
+.print_siosh:
+    movzx eax, cx
+    call iprint
+    
+    mov eax, strbys
+    call sprint
+    
+.finish_siosh:
+
+;----------------------------------
+; number of section header:
+
+    mov eax, nuosh
+    call sprint
+    
+    mov eax, 2
+    call get_next_byte
+    
+        
+    xor cx, cx
+    
+    mov bl, 1
+    cmp byte [litbig], bl
+    je .little_nuosh
+    
+    mov ch, byte [byteContents]
+    mov cl, byte [byteContents+1]
+    
+    jmp .print_nuosh
+.little_nuosh:
+    mov ch, byte [byteContents+1]
+    mov cl, byte [byteContents]
+
+.print_nuosh:
+    movzx eax, cx
+    call iprint
+    
+    mov eax, strbys
+    call sprint
+    
+.finish_nuosh:
+
+;-----------------------------------------------------
+; section header string table index:
+    mov eax, shsti
+    call sprint
+    
+    mov eax, 2
+    call get_next_byte
+    
+        
+    xor cx, cx
+    
+    mov bl, 1
+    cmp byte [litbig], bl
+    je .little_shsti
+    
+    mov ch, byte [byteContents]
+    mov cl, byte [byteContents+1]
+    
+    jmp .print_shsti
+.little_shsti:
+    mov ch, byte [byteContents+1]
+    mov cl, byte [byteContents]
+
+.print_shsti:
+    movzx eax, cx
+    call iprint
+    
+    call print_lf
+    
+.finish_shsti:
     
     
 jmp finish

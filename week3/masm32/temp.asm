@@ -1,7 +1,6 @@
 .386
 .model flat, stdcall
 option casemap:none
-
 include C:\masm32\include\masm32rt.inc
 
 .data
@@ -10,14 +9,12 @@ include C:\masm32\include\masm32rt.inc
     out3 db "third number: ", 0
 
 .data?
-
     str1 db 2 dup (?)
     str2 db 12 dup (?)
     str3 db 12 dup (?)
 
 .code
 start:
-
     invoke StdOut, offset out1
     invoke StdIn, offset str1, 2
 

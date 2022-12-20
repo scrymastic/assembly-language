@@ -2,14 +2,10 @@
 .model flat,stdcall
 option casemap:none
 
-include \masm32\include\windows.inc
 include \masm32\include\kernel32.inc
 include \masm32\include\user32.inc
 include \masm32\include\masm32rt.inc
 
-includelib \masm32\lib\kernel32.lib
-includelib \masm32\lib\user32.lib
-includelib \masm32\lib\masm32.lib
 
 .data?
     sizeOfDataDirArr dd ?
@@ -35,9 +31,9 @@ includelib \masm32\lib\masm32.lib
     ExportDirSize DWORD ?
     ExportDirOft DWORD ?
 
-	
-    tempRVAddr DWORD ?
+    tempRVAAddr DWORD ?
     tempRawAddr DWORD ?
+
 	
     tempOfts DWORD ?
 	
@@ -51,6 +47,13 @@ includelib \masm32\lib\masm32.lib
     
 
 .data
+    tempRVAAddr1 DWORD 0
+    tempRawAddr1 DWORD 0
+	
+    tempRVAAddr2 DWORD 0
+    tempRawAddr2 DWORD 0
+	
+    ;file_name db "D:\My Downloads\PE-bear_0.6.1_x64_win_vs17\Qt5Core.dll", 0
     ofs OFSTRUCT<>
 	
     doneImportDirAddr db 0
@@ -66,20 +69,22 @@ get_next endp
 
 start:
 
-
-invoke GetCL, 1, offset file_name
+printf("path: ")
+invoke StdIn, offset file_name, 128
 
 invoke OpenFile, offset file_name, offset ofs, OF_READ
 mov file_handle, eax
 
 
 DOS_Header:
-    printf ("DOS Header\n")
-    
+
+    invoke SetFilePointer, file_handle, 0, 0, FILE_BEGIN
+    xor eax, eax
     invoke get_next, 2
     xor eax, eax
     movzx eax, word ptr [file_contents]
     .if eax == 23117
+        printf ("DOS Header\n")
         printf ("    Magic number:                      0x5a4d (MZ)\n")
     .else
         jmp not_pe
@@ -986,7 +991,7 @@ NT_Header:
             printf ("        Virtual Size:                  0x%x\n", dword ptr [file_contents])
             invoke get_next, 4
 			push dword ptr [file_contents]
-			pop tempRVAddr
+			pop tempRVAAddr
             printf ("        Virtual Address:               0x%x\n", dword ptr [file_contents])
             invoke get_next, 4
             printf ("        Raw Data Size:                 0x%x\n", dword ptr [file_contents])
@@ -1004,37 +1009,45 @@ NT_Header:
             printf ("        Line Numbers Number:           0x%x\n", word ptr [file_contents])
             invoke get_next, 4
             printf ("        Characteristics:               0x%x\n", dword ptr [file_contents])
+			
+			push tempRVAAddr2
+			pop tempRVAAddr1
+			push tempRawAddr2
+			pop tempRawAddr1
+			
+			mov eax, tempRVAAddr
+			mov tempRVAAddr2, eax
+			mov eax, tempRawAddr
+			mov tempRawAddr2, eax
 
 			.if (ImportDirExist != 0)
-				mov eax, tempRVAddr
-				add eax, SectionAlignment
-				.if eax > ImportDirRVA
-					.if doneImportDirAddr == 0
+				
+				mov eax, ImportDirRVA
+				.if eax >= tempRVAAddr1
+					.if eax < tempRVAAddr2
 						mov eax, ImportDirRVA
-						sub eax, tempRVAddr
-						add eax, tempRawAddr
+						sub eax, tempRVAAddr1
+						add eax, tempRawAddr1
 						mov ImportDirOft, eax
 						mov al, 1
 						mov doneImportDirAddr, al
-					.else
-						nop
+
 					.endif
 				.endif
 			.endif
 			
 			.if (ExportDirExist != 0)
-				mov eax, tempRVAddr
-				add eax, SectionAlignment
-				.if eax > ExportDirRVA
-					.if doneExportDirAddr == 0
+				
+				mov eax, ExportDirRVA
+				.if eax >= tempRVAAddr1
+					.if eax < tempRVAAddr2
 						mov eax, ExportDirRVA
-						sub eax, tempRVAddr
-						add eax, tempRawAddr
+						sub eax, tempRVAAddr1
+						add eax, tempRawAddr1
 						mov ExportDirOft, eax
 						mov al, 1
 						mov doneExportDirAddr, al
-					.else
-						nop
+				
 					.endif
 				.endif
 			.endif
@@ -1044,6 +1057,22 @@ NT_Header:
         mov numberOfSections, ax
             
     .endw
+	
+	.if (doneImportDirAddr == 0)
+		mov eax, ImportDirRVA
+		sub eax, tempRVAAddr1
+		add eax, tempRawAddr1
+		mov ImportDirOft, eax
+		
+	.endif
+	
+	.if (doneExportDirAddr == 0)
+		mov eax, ExportDirRVA
+		sub eax, tempRVAAddr1
+		add eax, tempRawAddr1
+		mov ExportDirOft, eax
+		
+	.endif
 
 Import_Directories:
 	printf ("Import Directories\n")
@@ -1101,17 +1130,34 @@ Import_Directories:
 		.while TRUE
 			
 			mov eax, count
-			mov esi, 4
+			.if PEversion == 32
+				mov esi, 4
+			.elseif PEversion == 64
+				mov esi, 8
+			.endif
 			mul esi
 			add eax, firstThunk
 			mov esi, eax
 			
 			invoke SetFilePointer, file_handle, esi, 0, FILE_BEGIN
-
-			invoke get_next, 4
-			push dword ptr [file_contents]
-			pop tempfunc
-			.break .if (tempfunc == 0)
+			
+			.if PEversion == 32
+				invoke get_next, 4
+				push dword ptr [file_contents]
+				pop tempfunc
+				.break .if (tempfunc == 0)
+			.elseif PEversion == 64
+				invoke get_next, 8
+				push dword ptr [file_contents]
+				pop tempfunc
+				.if (tempfunc == 0)
+					push dword ptr [file_contents + 4]
+					pop tempfunc
+					.if (tempfunc == 0)
+						.break
+					.endif
+				.endif
+			.endif
 			mov eax, tempfunc
 			sub eax, ImportDirRVA
 			add eax, ImportDirOft
@@ -1139,117 +1185,56 @@ Import_Directories:
 
 	finish_importDir:
 	
+;jmp not_pe
 Export_Directories:
 	printf ("Export Directories\n")
 	.if ExportDirExist == 0
 		jmp finish_exportDir
 	.endif
 	
-	xor eax, eax
-	mov countW, eax
-	.while TRUE
-		mov eax, countW
-		mov edi, 20
-		mul edi
-		add eax, ExportDirOft
-		mov edi, eax
-		
-		invoke SetFilePointer, file_handle, edi, 0, FILE_BEGIN
-		invoke get_next, 20
-		.if dword ptr [file_contents] == 0
-			.if dword ptr [file_contents+4] == 0
-				.if dword ptr [file_contents+8] == 0
-					.if dword ptr [file_contents+12] == 0
-						.if dword ptr [file_contents+16] == 0
-							.break
-						.endif
-					.endif
-				.endif
-            .endif
-		.endif
-		push dword ptr [file_contents+12]
-		pop libNameAddr
-		mov eax, libNameAddr
-		sub eax, ExportDirRVA
-		add eax, ExportDirOft
-		mov libNameAddr, eax
-		
-		push dword ptr [file_contents+16]
-		pop firstThunk
-		mov eax, firstThunk
-		sub eax, ExportDirRVA
-		add eax, ExportDirOft
-		mov libNameAddr, eax
-		
-		push dword ptr [file_contents+16]
-		pop firstThunk
-		mov eax, firstThunk
-		sub eax, ExportDirRVA
-		add eax, ExportDirOft
-		mov firstThunk, eax
-		
-		
-		printf ("    Library\n")
-		printf ("        Name:                          ")
-			  
-		invoke SetFilePointer, file_handle, libNameAddr, 0, FILE_BEGIN
-		invoke get_next, 64
-		invoke StdOut, offset file_contents
-		printf ("\n")
-		
-		xor eax, eax
-		mov count, eax
-		.while TRUE
-			
-			mov eax, count
-			mov esi, 4
-			mul esi
-			add eax, firstThunk
-			mov esi, eax
-			
-			invoke SetFilePointer, file_handle, esi, 0, FILE_BEGIN
-
-			invoke get_next, 4
-			push dword ptr [file_contents]
-			pop tempfunc
-			.break .if (tempfunc == 0)
-			mov eax, tempfunc
-			sub eax, ExportDirRVA
-			add eax, ExportDirOft
-			mov tempfunc, eax
-			
-			invoke SetFilePointer, file_handle, tempfunc, 0, FILE_BEGIN
-			invoke get_next, 64
-			printf ("        Functions\n")
-			printf ("            Hint:                      0x%x\n", word ptr [file_contents])
-			printf ("            Name:                      ")
-
-			invoke StdOut, offset file_contents+2
-			printf ("\n")
-			
-			mov esi, count
-			inc esi
-			mov count, esi
-		.endw
-		
-		mov edi, countW
-		inc edi
-		mov countW, edi
+	invoke SetFilePointer, file_handle, ExportDirOft, 0, FILE_BEGIN
 	
-	.endw
+	invoke get_next, 4
+	printf ("	Characteristics:               %d\n", dword ptr [file_contents])
+	invoke get_next, 4
+	printf ("	Time stamp:                    0x%x\n", dword ptr [file_contents])
+	invoke get_next, 2
+	printf ("	Major version:                 %d\n", word ptr [file_contents])
+	invoke get_next, 2
+	printf ("	Minor version:                 %d\n", word ptr [file_contents])
+	invoke get_next, 4
+	printf ("	Name:                          0x%x\n", dword ptr [file_contents])
+	invoke get_next, 4
+	printf ("	Base:                          %d\n", dword ptr [file_contents])
+	invoke get_next, 4
+	printf ("	Number of functions:           %d\n", dword ptr [file_contents])
+	mov eax, dword ptr [file_contents]
+	mov count, eax
+	invoke get_next, 4
+	printf ("	Number of names:               %d\n", dword ptr [file_contents])
+	invoke get_next, 4
+	printf ("	Address of functions:          0x%x\n", dword ptr [file_contents])
+	invoke get_next, 4
+	printf ("	Address of names:              0x%x\n", dword ptr [file_contents])
+	invoke get_next, 4
+	printf ("	Address of name ordinals:      0x%x\n", dword ptr [file_contents])
+	
+	
+	
+	;.while (count > 0)
+	;	invoke SetFilePointer, file_handle, , 0, FILE_BEGIN
+	
+	
 
 	finish_exportDir:
 	
-	
-inkey
 
 jmp done
 not_pe:
     printf ("Not a PE file\n")
     
 done:
+;inkey
 invoke ExitProcess, 0
 
 end start
-
-

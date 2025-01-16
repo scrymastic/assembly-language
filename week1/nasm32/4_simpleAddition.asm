@@ -1,5 +1,5 @@
 section .bss
-    input: resb 22                  ;Ex: input = '1234 45677'
+    input: resb 22                  ; Ex: input = '1234 45677'
     
 section .data
 
@@ -15,7 +15,7 @@ _start:
     lea ecx, input
     xor eax, eax
     
-get_num1:                           ;take the digits from input string and convert them to two numbers
+get_num1:                           ; take the digits from input string and convert them to two numbers
     xor ebx, ebx
     mov bl, [ecx]
     cmp bl, 32
@@ -60,11 +60,11 @@ end2:
     div ebx
     
     pop ebx
-    add eax, ebx                    ;add two numbers to get the sum
+    add eax, ebx                    ; add two numbers to get the sum
     
     mov ecx, 0
     
-push_digits:                        ;push each digit in the sum onto the stack
+push_digits:                        ; push each digit in the sum onto the stack
     inc ecx
     mov edx, 0
     mov ebx, 10
@@ -77,7 +77,7 @@ push_digits:                        ;push each digit in the sum onto the stack
     mov edx, 1
     mov ebx, 1
     
-print:                              ;take each digit from the stack and print it out
+print:                              ; take each digit from the stack and print it out
     dec ecx
     mov eax, esp
     push ecx

@@ -202,10 +202,10 @@ get_nums:
     
 
 
-;------------------------------------------
-;eax: string num
-;return:
-;eax: num int
+;-------------------------------------------
+; eax: string num
+; return:
+; eax: num int
 atoi:
     push    ebx
     push    ecx
@@ -242,10 +242,10 @@ atoi:
 
 
 
-;------------------------------------------
+;-------------------------------------------
 ; void iprint(Integer number)
 ; Integer printing function (itoa)
-;eax: num int
+; eax: num int
 iprint:
     push eax
     push ecx
@@ -281,11 +281,11 @@ iprint:
 
 
 
-;----------------
-;eax: destination
-;return:
-;eax: destination
-;ebx: len
+;-------------------------------------------
+; eax: destination
+; return:
+; eax: destination
+; ebx: len
 get_until_linefeed:
     push eax
    
@@ -336,10 +336,10 @@ get_char:
    
     
 
-;------------------------------------------
-;eax: string
-;return:
-;eax: len string
+;-------------------------------------------
+; eax: string
+; return:
+; eax: len string
 slen:
     push    ebx
     mov     ebx, eax
@@ -354,10 +354,10 @@ slen:
     ret
 
 
-;------------------------------------------
-;eax: string
-;return:
-;eax: len string
+;-------------------------------------------
+; eax: string
+; return:
+; eax: len string
 sprint:
     push    edx
     push    ecx

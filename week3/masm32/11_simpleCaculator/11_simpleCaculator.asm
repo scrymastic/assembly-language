@@ -179,8 +179,8 @@ slen endp
 getNum proc
 
     invoke StdOut, offset out3
-    invoke StdIn, offset str1, 11                                         ; why do we need two lines? I don't know.
-    invoke StdIn, offset str1, 11                                         ; It seems like the program ignored one line. So we need the second one.
+    invoke StdIn, offset str1, 11                   ; why do we need two lines?
+    invoke StdIn, offset str1, 11                   ; It seems like the input is not working properly, maybe because of the newline character left in the buffer.
 
 
     invoke StdOut, offset out4
@@ -280,7 +280,7 @@ start:
 
         .else
             invoke StdOut, offset out8
-            invoke StdIn, offset choice, 2                                ; Same reason as two lines of "invoke StdIn, offset str1, 11"
+            invoke StdIn, offset choice, 2                  ; Same reason as two lines of "invoke StdIn, offset str1, 11"
             
         .endif
 

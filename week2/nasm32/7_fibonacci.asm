@@ -68,11 +68,12 @@ _start:
 done:
     call quit
 
-;eax: num1
-;ebx: num2
-;ecx: num3 = num2 + num1
-;return:
-;no changes
+;-------------------------------------------
+; eax: num1
+; ebx: num2
+; ecx: num3 = num2 + num1
+; return:
+; no changes
 add_nums:
     push eax
     push ebx
@@ -193,8 +194,8 @@ add_nums:
     ret
     
 
-
-;eax: string
+;-------------------------------------------
+; eax: string
 reverse:
     push edx
     push ecx
@@ -227,11 +228,11 @@ reverse:
    
     ret
     
-
-;eax: des
-;ebx: source
-;return:
-;eax: end of string
+;-------------------------------------------
+; eax: des
+; ebx: source
+; return:
+; eax: end of string
 copy:
     push eax
     push ebx
@@ -327,11 +328,11 @@ sprint:
     
 
 
-;----------------
-;eax: destination
-;return:
-;eax: destination
-;ebx: len
+;-------------------------------------------
+; eax: destination
+; return:
+; eax: destination
+; ebx: len
 get_until_linefeed:
     push eax
    
@@ -354,13 +355,11 @@ get_until_linefeed:
    
     ret
    
-   
-   
 
-
-;eax: destination
-;return:
-;eax: destination
+;-------------------------------------------
+; eax: destination
+; return:
+; eax: destination
 get_char:
     push eax
     push ebx
@@ -381,7 +380,7 @@ get_char:
     ret
    
    
-;------------------------------------------
+;-------------------------------------------
 ; int atoi(Integer number)
 ; Ascii to integer function (atoi)
 atoi:

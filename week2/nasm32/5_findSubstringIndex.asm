@@ -73,7 +73,7 @@ iprint:
     add     edx, 48         ; convert edx to it's ascii representation - edx holds the remainder after a divide instruction
     push    edx             ; push edx (string representation of an intger) onto the stack
     cmp     eax, 0          ; can the integer be divided anymore?
-    jnz     .divideLoop      ; jump if not zero to the label divideLoop
+    jnz     .divideLoop     ; jump if not zero to the label divideLoop
 
 .printLoop:
     dec     ecx             ; count down each byte that we put on the stack
@@ -81,7 +81,7 @@ iprint:
     call    sprint          ; call our string print function
     pop     eax             ; remove last character from the stack to move esp forward
     cmp     ecx, 0          ; have we printed all bytes we pushed onto the stack?
-    jnz     .printLoop       ; jump is not zero to the label printLoop
+    jnz     .printLoop      ; jump is not zero to the label printLoop
 
     pop     esi             ; restore esi from the value we pushed onto the stack at the start
     pop     edx             ; restore edx from the value we pushed onto the stack at the start

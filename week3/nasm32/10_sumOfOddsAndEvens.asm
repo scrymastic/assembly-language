@@ -1,10 +1,10 @@
-;input: a sequence in a line
-;each number is separated by a non-digit character
-;press enter to get the result
-;example:
-;1 2 3 4 5
-;sum of odds: 9
-;sum of evens: 6
+; input: a sequence in a line
+; each number is separated by a non-digit character
+; press enter to get the result
+; example:
+; 1 2 3 4 5
+; sum of odds: 9
+; sum of evens: 6
 
 section .text
 
@@ -65,10 +65,10 @@ _start:
     call quit
 
 
-;------------------------------------------
-;eax: string num
-;return:
-;eax: num int
+;-------------------------------------------
+; eax: string num
+; return:
+; eax: num int
 atoi:
     push    ebx
     push    ecx
@@ -123,10 +123,10 @@ slen:
     ret
 
 
-;------------------------------------------
-;eax: string
-;return:
-;eax: len string
+;-------------------------------------------
+; eax: string
+; return:
+; eax: len string
 sprint:
     push    edx
     push    ecx
@@ -148,10 +148,10 @@ sprint:
     ret
     
     
-;------------------------------------------
-;eax: destination
-;return:
-;eax: destination
+;-------------------------------------------
+; eax: destination
+; return:
+; eax: destination
 get_char:
     push eax
     push ebx
@@ -173,11 +173,11 @@ get_char:
    
  
 
-;------------------------------------------
-;eax: destination
-;return:
-;eax: destination
-;ebx: len
+;-------------------------------------------
+; eax: destination
+; return:
+; eax: destination
+; ebx: len
 get_until_not_num:
     push eax
     push ecx
@@ -212,10 +212,10 @@ get_until_not_num:
     ret
 
 
-;------------------------------------------
-;eax: source
-;return:
-;eax: even 0, odd 1
+;-------------------------------------------
+; eax: source
+; return:
+; eax: even 0, odd 1
 odd_or_even:
     push ebx
     mov ebx, eax
@@ -248,10 +248,10 @@ odd_or_even:
    
    
 
-;------------------------------------------
+;-------------------------------------------
 ; void iprint(Integer number)
 ; Integer printing function (itoa)
-;eax: num int
+; eax: num int
 iprint:
     push eax
     push ecx
@@ -286,7 +286,7 @@ iprint:
 
 
 
-;------------------------------------------
+;-------------------------------------------
 quit:
     mov ebx, 0
     mov eax, 1

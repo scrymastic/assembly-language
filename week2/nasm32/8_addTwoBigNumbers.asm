@@ -24,11 +24,12 @@ _start:
    
     call quit
 
-;eax: num1
-;ebx: num2
-;ecx: num3 = num2 + num1
-;return:
-;no changes
+;-------------------------------------------
+; eax: num1
+; ebx: num2
+; ecx: num3 = num2 + num1
+; return:
+; no changes
 add_nums:
     push eax
     push ebx
@@ -149,8 +150,8 @@ add_nums:
     ret
     
 
-
-;eax: string
+;-------------------------------------------
+; eax: string
 reverse:
     push edx
     push ecx
@@ -186,7 +187,7 @@ reverse:
    
 
 
-;------------------------------------------
+;-------------------------------------------
 ; int slen(String message)
 ; String length calculation function
 slen:
@@ -205,7 +206,7 @@ slen:
     ret
 
 
-;------------------------------------------
+;-------------------------------------------
 ; void sprint(String message)
 ; String printing function
 sprint:
@@ -230,11 +231,11 @@ sprint:
     
 
 
-;----------------
-;eax: destination
-;return:
-;eax: destination
-;ebx: len
+;-------------------------------------------
+; eax: destination
+; return:
+; eax: destination
+; ebx: len
 get_until_linefeed:
     push eax
    
@@ -258,12 +259,11 @@ get_until_linefeed:
     ret
    
    
-   
 
-
-;eax: destination
-;return:
-;eax: destination
+;-------------------------------------------
+; eax: destination
+; return:
+; eax: destination
 get_char:
     push eax
     push ebx
@@ -284,7 +284,7 @@ get_char:
     ret
    
    
-   
+
 quit:
     mov ebx, 0
     mov eax, 1

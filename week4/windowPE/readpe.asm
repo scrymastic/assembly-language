@@ -53,7 +53,7 @@ include \masm32\include\masm32rt.inc
     tempRVAAddr2 DWORD 0
     tempRawAddr2 DWORD 0
 	
-    ;file_name db "D:\My Downloads\PE-bear_0.6.1_x64_win_vs17\Qt5Core.dll", 0
+    ; file_name db "D:\My Downloads\PE-bear_0.6.1_x64_win_vs17\Qt5Core.dll", 0
     ofs OFSTRUCT<>
 	
     doneImportDirAddr db 0
@@ -130,7 +130,7 @@ DOS_Header:
     invoke get_next, 2
     printf ("    Overlay number:                    0x%x\n", word ptr [file_contents])
 
-    invoke get_next, 8                      ; reserved bytes
+    invoke get_next, 8                              ; reserved bytes
     
     invoke get_next, 2
     printf ("    OEM indentifier:                   0x%x\n", word ptr [file_contents])
@@ -138,7 +138,7 @@ DOS_Header:
     invoke get_next, 2
     printf ("    OEM information:                   0x%x\n", word ptr [file_contents])
 
-    invoke get_next, 20                     ; reserved bytes
+    invoke get_next, 20                             ; reserved bytes
 
     invoke get_next, 4
     printf ("    PE header offset:                  0x%x\n", dword ptr [file_contents])
@@ -1185,7 +1185,7 @@ Import_Directories:
 
 	finish_importDir:
 	
-;jmp not_pe
+; jmp not_pe
 Export_Directories:
 	printf ("Export Directories\n")
 	.if ExportDirExist == 0
@@ -1220,12 +1220,6 @@ Export_Directories:
 	printf ("	Address of name ordinals:      0x%x\n", dword ptr [file_contents])
 	
 	
-	
-	;.while (count > 0)
-	;	invoke SetFilePointer, file_handle, , 0, FILE_BEGIN
-	
-	
-
 	finish_exportDir:
 	
 
@@ -1234,7 +1228,7 @@ not_pe:
     printf ("Not a PE file\n")
     
 done:
-;inkey
+; inkey
 invoke ExitProcess, 0
 
 end start

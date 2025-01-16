@@ -192,10 +192,10 @@ reverse_len:
     ret
 
 ;-------------------------------------------
-;eax: des
-;ebx: source
-;return:
-;eax: end of string
+; eax: des
+; ebx: source
+; return:
+; eax: end of string
 copy:
     push eax
     push ebx
@@ -222,7 +222,7 @@ copy:
     
     ret
 
-;------------------------------------------
+;-------------------------------------------
 ; void iprint(Integer number)
 ; Integer printing function (itoa)
 iprint:
@@ -258,7 +258,7 @@ iprint:
 
 
 
-;------------------------------------------
+;-------------------------------------------
 ; eax: number to be printed
 ; integer (hex) printing function (itoa)
 iprintH:
@@ -300,7 +300,7 @@ iprintH:
 
 
 
-;-----------------------------
+;-------------------------------------------
 ; eax: byte to be printed
 ; 0 <= eax <= 255
 ; 0 => 00
@@ -322,8 +322,8 @@ iprint_byteH:
 	ret
 	
 
-;------------------------------------------
-;print linefeed
+;-------------------------------------------
+; print linefeed
 print_lf:
     push    eax
     mov     eax, 10
@@ -335,8 +335,8 @@ print_lf:
     ret
 
 
-;------------------------------------------
-;print space
+;-------------------------------------------
+; print space
 print_sp:
     push    eax
     mov     eax, 32
@@ -348,7 +348,7 @@ print_sp:
     ret
 
 
-;------------------------------------------
+;-------------------------------------------
 ; int slen(String message)
 ; String length calculation function
 slen:
@@ -367,7 +367,7 @@ slen:
     ret
 
 
-;------------------------------------------
+;-------------------------------------------
 ; void sprint(String message)
 ; String printing function
 sprint:
@@ -391,7 +391,7 @@ sprint:
     ret
 
     
-;---------------------------------
+;-------------------------------------------
 ; print a string in hex, each byte is separated by a space
 ; eax: source
 ; ebx: len
@@ -425,7 +425,7 @@ sprintH_sp:
     ret
 
 
-;---------------------------------
+;-------------------------------------------
 ; print a string in hex
 ; eax: source
 ; ebx: len
@@ -476,7 +476,7 @@ sprintH:
     
 
 
-;------------------------------------------
+;-------------------------------------------
 ; void exit()
 ; Exit program and restore resources
 quit:
@@ -502,7 +502,7 @@ _start:
 	
 
 
-    mov     ecx, 0              ; Open file from lesson 24
+    mov     ecx, 0                      ; Open file from lesson 24
     mov     ebx, filename
     mov     eax, 5
     int     0x80
@@ -510,7 +510,7 @@ _start:
     mov dword [fildes], eax
 
 
-;--------------------
+;-------------------------------------------
 ; magic:
 
     mov eax, 4
@@ -546,7 +546,7 @@ _start:
 	call print_lf
     
     
-;----------------------------
+;-------------------------------------------
 ; class:
     mov eax, class
     call sprint
@@ -569,7 +569,7 @@ _start:
     
 .finish_class:
     
-;-----------------------------
+;-------------------------------------------
 ; data:
     mov eax, data
     call sprint
@@ -592,7 +592,7 @@ _start:
     
 .finish_data:
 
-;--------------------------------
+;-------------------------------------------
 ; data version:
 	mov eax, maver
 	call sprint
@@ -614,7 +614,7 @@ _start:
     
 .finish_daver:
 
-;---------------------------------------
+;-------------------------------------------
 ; OS/ABI:
 	mov eax, opabi
 	call sprint
@@ -775,7 +775,7 @@ _start:
     
 .finish_opabi:
 
-;-------------------------------
+;-------------------------------------------
 ; ABI version:
     mov eax, abive
     call sprint
@@ -789,12 +789,12 @@ _start:
     call print_lf
     
     
-;-------------------------------------
+;-------------------------------------------
 ; reverved padding bytes:
     mov eax, 7
     call get_next_byte
     
-;------------------------------------
+;-------------------------------------------
 ; type:
 	mov eax, type
 	call sprint
@@ -897,7 +897,7 @@ _start:
 
 .finish_type:
 
-;----------------------------------
+;-------------------------------------------
 ; machine:
 	mov eax, machi
 	call sprint
@@ -1408,7 +1408,7 @@ _start:
     
 .finish_machi:
 
-;---------------------------------------
+;-------------------------------------------
 ; machine version:
     mov eax, maver
     call sprint
@@ -1440,7 +1440,7 @@ _start:
     
 .finish_maver:
 
-;-------------------------------------
+;-------------------------------------------
 ; entry:
     mov eax, entry
     call sprint
@@ -1494,7 +1494,7 @@ _start:
 .finish_entry:
     call print_lf
     
-;----------------------------------------
+;-------------------------------------------
 ; start of program header:
     mov eax, stoph
     call sprint
@@ -1565,7 +1565,7 @@ _start:
     call sprint
 
 
-;-------------------------------
+;-------------------------------------------
 ; start of section header:
     mov eax, stosh
     call sprint
@@ -1637,7 +1637,7 @@ _start:
 
 
 
-;----------------------------------
+;-------------------------------------------
 ; flags:
     mov eax, flags
     call sprint
@@ -1669,7 +1669,7 @@ _start:
     
 .finish_flags:
 
-;------------------------------
+;-------------------------------------------
 ; size of this header:
     mov eax, sioth
     call sprint
@@ -1701,7 +1701,7 @@ _start:
     
 .finish_sioth:
 
-;---------------------------------------------
+;-------------------------------------------
 ; size of program header:
     mov eax, sioph
     call sprint
@@ -1733,7 +1733,7 @@ _start:
     
 .finish_sioph:
     
-;---------------------------------------------
+;-------------------------------------------
 ; numbers of program header:
     mov eax, nuoph
     call sprint
@@ -1764,7 +1764,7 @@ _start:
     
 .finish_nuoph:
 
-;---------------------------------------------
+;-------------------------------------------
 ; size of section header:
     mov eax, siosh
     call sprint
@@ -1796,7 +1796,7 @@ _start:
     
 .finish_siosh:
 
-;----------------------------------
+;-------------------------------------------
 ; number of section header:
 
     mov eax, nuosh
@@ -1829,7 +1829,7 @@ _start:
     
 .finish_nuosh:
 
-;-----------------------------------------------------
+;-------------------------------------------
 ; section header string table index:
     mov eax, shsti
     call sprint
@@ -1867,5 +1867,5 @@ jmp finish
     mov eax, nonelf
     call sprint
 finish:
-    call    quit                ; call our quit function
+    call    quit                    ; call our quit function
     

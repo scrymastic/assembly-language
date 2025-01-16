@@ -18,7 +18,7 @@ _start:
     
     
 
-;------------------------------------------
+;-------------------------------------------
 ; int slen(String message)
 ; String length calculation function
 slen:
@@ -37,10 +37,10 @@ slen:
     ret
 
 
-;---------------
-;eax: source string
-;return:
-;no changes
+;-------------------------------------------
+; eax: source string
+; return:
+; no changes
 print_reverse:
     push ebx
     push ecx
@@ -71,10 +71,10 @@ print_reverse:
     ret
     
 
-
-;eax: source
-;return:
-;eax: source
+;-------------------------------------------
+; eax: source
+; return:
+; eax: source
 print_char:
     push eax
     push ebx

@@ -57,8 +57,8 @@ itoa proc
 itoa endp
 
 
-
-;eax: string
+;-------------------------------------------
+; eax: string
 ;
 reverse proc
     push edx
@@ -95,12 +95,13 @@ reverse proc
 reverse endp
 
 
-;eax: src
-;ebx: substring
-;out:
-;eax: src
-;ebx: substring
-;ecx: 1 or 0
+;-------------------------------------------
+; eax: src
+; ebx: substring
+; out:
+; eax: src
+; ebx: substring
+; ecx: 1 or 0
 
 compare_at proc
     push eax
@@ -167,9 +168,10 @@ _finish:
 match endp
 
 
-;eax: string
-;out:
-;eax: len
+;-------------------------------------------
+; eax: string
+; out:
+; eax: len
 slen proc
     push ebx
     mov ebx, eax

@@ -312,9 +312,9 @@ get_until_linefeed:
    
 
 
-;eax: destination
-;return:
-;eax: destination
+; eax: destination
+; return:
+; eax: destination
 get_char:
     push eax
     push ebx

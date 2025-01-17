@@ -18,11 +18,11 @@ include \masm32\include\masm32rt.inc
 
 .code
 
-;eax: num1
-;ebx: num2
-;ecx: num3 = num2 + num1
-;return:
-;no changes
+; eax: num1
+; ebx: num2
+; ecx: num3 = num2 + num1
+; return:
+; no changes
 add_nums proc
     push eax
     push ebx
@@ -180,9 +180,9 @@ reverse endp
     
 
 
-;eax: string
-;out:
-;eax: len
+; eax: string
+; out:
+; eax: len
 slen proc
     push ebx
     mov ebx, eax

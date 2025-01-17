@@ -55,7 +55,7 @@ matched:
     ret
     
 
-;------------------------------------------
+;-------------------------------------------
 ; void iprint(Integer number)
 ; Integer printing function (itoa)
 iprint:
@@ -91,11 +91,11 @@ iprint:
 
     
 
-;----------------
-;eax: destination
-;return:
-;eax: destination
-;ebx: len
+;-------------------------------------------
+; eax: destination
+; return:
+; eax: destination
+; ebx: len
 get_until_linefeed:
     push eax
     
@@ -119,9 +119,9 @@ get_until_linefeed:
     ret
 
 
-;eax: destination
-;return:
-;eax: destination
+; eax: destination
+; return:
+; eax: destination
 get_char:
     push eax
     push ebx
@@ -143,7 +143,7 @@ get_char:
     
   
   
-;------------------------------------------
+;-------------------------------------------
 ; int slen(String message)
 ; String length calculation function
 slen:
@@ -160,7 +160,7 @@ slen:
     ret
 
 
-;------------------------------------------
+;-------------------------------------------
 ; void sprint(String message)
 ; String printing function
 sprint:
@@ -208,12 +208,12 @@ print_sp:
     ret
     
     
-;eax: source
-;ebx: substring
-;return:
-;eax: source
-;ebx: substring
-;ecx: 1 or 0
+; eax: source
+; ebx: substring
+; return:
+; eax: source
+; ebx: substring
+; ecx: 1 or 0
 compare_at:
     push eax
     push ebx

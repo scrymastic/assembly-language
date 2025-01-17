@@ -284,7 +284,7 @@ print_lf:
    
     ret
 
-;------------------------------------------
+;-------------------------------------------
 ; int slen(String message)
 ; String length calculation function
 slen:
@@ -303,7 +303,7 @@ slen:
     ret
 
 
-;------------------------------------------
+;-------------------------------------------
 ; void sprint(String message)
 ; String printing function
 sprint:

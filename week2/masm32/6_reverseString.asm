@@ -10,7 +10,9 @@ include C:\masm32\include\masm32rt.inc
    string db 33 dup (?)
 
 .code
-;eax: string
+
+;-------------------------------------------
+; eax: string
 ;
 reverse proc
     push edx
@@ -46,9 +48,10 @@ reverse proc
 
 reverse endp
 
-;eax: string
-;out:
-;eax: len
+;-------------------------------------------
+; eax: string
+; out:
+; eax: len
 slen proc
     push ebx
     mov ebx, eax

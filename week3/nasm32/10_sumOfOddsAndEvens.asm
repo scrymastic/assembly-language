@@ -105,10 +105,10 @@ atoi:
 
 
 
-;------------------------------------------
-;eax: string
-;return:
-;eax: len string
+;-------------------------------------------
+; eax: string
+; return:
+; eax: len string
 slen:
     push    ebx
     mov     ebx, eax

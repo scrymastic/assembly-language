@@ -37,9 +37,9 @@ ExitProcess proto :dword
 
 .code
 
-;eax: string
-;out:
-;eax: number
+; eax: string
+; out:
+; eax: number
 
 atoi proc
     push ebx
@@ -77,9 +77,9 @@ atoi proc
 atoi endp
 
 
-;eax: num
-;ebx: des
-;out:
+; eax: num
+; ebx: des
+; out:
 ;
 
 itoa proc
@@ -119,7 +119,7 @@ itoa endp
 
 
 
-;eax: string
+; eax: string
 ;
 reverse proc
     push edx
@@ -155,9 +155,9 @@ reverse proc
 
 reverse endp
 
-;eax: string
-;out:
-;eax: len
+; eax: string
+; out:
+; eax: len
 slen proc
     push ebx
     mov ebx, eax

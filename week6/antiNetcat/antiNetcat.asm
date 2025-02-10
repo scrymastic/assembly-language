@@ -23,11 +23,11 @@ _start:
 .loop:
 	mov rdi, timeval					; time sleep = 10s and 0 ns
 	xor rsi, rsi
-	mov rax, 35							; syscall nanosleep
+	mov rax, 35						; syscall nanosleep
 	syscall
 	
 	
-	mov rax, 57							; syscall fork()
+	mov rax, 57						; syscall fork()
 	syscall
 	; fork() creates a new process by duplicating the calling process
 	; The calling process is called parent process, the new process is child process
@@ -45,14 +45,14 @@ killNetcat:
 	mov rdi, path
 	mov rsi, argv
 	mov rdx, 0
-	mov rax, 59							; syscall execve: killall nc netcat
+	mov rax, 59						; syscall execve: killall nc netcat
 	syscall
 
 
 	
 exit:
 	mov rdi, 0
-	mov rax, 60							; syscall exit
+	mov rax, 60						; syscall exit
 	syscall
 	
 

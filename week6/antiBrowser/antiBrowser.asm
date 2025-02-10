@@ -1,7 +1,4 @@
 
-
-
-
 extrn CloseHandle: proc
 extrn CreateWindowExA: proc
 extrn DefWindowProcA: proc
@@ -275,7 +272,7 @@ EnumWindowsProc proc
 	mov rcx, hProc
 	lea rdx, buffer								; buffer that receives the full path to the exe file
 	mov r8, 255									; sizeof buffer
-	call GetProcessImageFileNameA					
+	call GetProcessImageFileNameA
 	; after calling this function, buffer stores a path like "\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
 	; now check if that path belongs to a browser or not
 	
@@ -358,7 +355,3 @@ WinMainCRTStartup proc
 WinMainCRTStartup endp
 
 end
-		
-	
-	
-

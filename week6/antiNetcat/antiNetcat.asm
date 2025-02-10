@@ -1,7 +1,4 @@
 
-
-
-
 section .data
 path db "/usr/bin/killall", 0
 arg1 db "nc", 0

@@ -12,8 +12,8 @@ argv dq path, arg1, arg2, 0
 
 
 timeval:
-	tv_sec dq 10						; Number of whole seconds of elapsed time
-	tv_usec dq 0						; Number of microseconds of rest of elapsed time minus tv_sec. Always less than one million
+	tv_sec dq 10					; Number of whole seconds of elapsed time
+	tv_usec dq 0					; Number of microseconds of rest of elapsed time minus tv_sec. Always less than one million
 
 
 section .text
@@ -21,7 +21,7 @@ global _start
 
 _start:
 .loop:
-	mov rdi, timeval					; time sleep = 10s and 0 ns
+	mov rdi, timeval				; time sleep = 10s and 0 ns
 	xor rsi, rsi
 	mov rax, 35						; syscall nanosleep
 	syscall
